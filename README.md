@@ -223,7 +223,7 @@ database:
 
 ## Why "Ono"?
 
-The name comes from PHP with the straight lines removed: **P**HP → **O**N**O**. Just like how Ono takes PHP's templating concept and makes it more fluid for the AI age.
+The name comes from PHP with the straight lines removed: php → ono. Just like how Ono takes PHP's templating concept and makes it more fluid for the AI age.
 
 Plus, it captures that "oh no, this is complicated" moment when you realize you need AI to figure it out instead of spending 30 minutes on Stack Overflow.
 
