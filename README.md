@@ -32,7 +32,7 @@ The same template works for Python, JavaScript, Rust, SQL, Dockerfiles, or any t
 
 ## How It Works
 
-Ono uses the familiar `<?ono ... ?>` syntax (inspired by PHP) that can be embedded in any file format. The AI understands your intent and generates the right output for your target language and platform.
+Ono uses the familiar `<?ono ... ?>` syntax (inspired by PHP) that can be embedded in any file format. AI understands your intent and generates the right output for your target language and platform.
 
 ## Basic Usage
 
@@ -64,59 +64,12 @@ Ono supports two types of parameters:
 
 ```bash
 result=<?ono 
-@context="preserve_previous/analysis"
+@context="preserve_previous"
 @execution="once"
-@scope="global"
 model="claude-3-5-sonnet"
 temperature=0.1
-system="You are an expert system administrator"
 
 determine the best package manager for this system
-?>
-```
-
-## Context Management
-
-Ono includes powerful context management for complex workflows:
-
-**Basic context preservation:**
-```bash
-# Establish context
-analysis=<?ono 
-@context="new"
-analyze this codebase structure
-?>
-
-# Build on previous context  
-tests=<?ono 
-@context="preserve_previous"
-generate unit tests based on the analysis above
-?>
-```
-
-**Context branching with paths:**
-```bash
-# Establish baseline
-<?ono 
-@context="preserve_previous/setup"
-analyze this API design
-?>
-
-# Fork for different tasks
-<?ono 
-@context="preserve_previous/setup/testing"
-create comprehensive test suite
-?>
-
-<?ono 
-@context="preserve_previous/setup/docs"  
-write API documentation
-?>
-
-# Continue testing branch
-<?ono 
-@context="preserve_previous/setup/testing"
-add performance benchmarks
 ?>
 ```
 
@@ -139,100 +92,83 @@ ono --format powershell deploy.ono > deploy.ps1
 ono --format python deploy.ono > deploy.py
 ```
 
-## Execution Modes
+## Context Management
 
-ono automatically detects whether your request needs agent capabilities or just model completion:
+Ono includes context management for complex workflows:
 
-**Agent mode** (system inspection, file access, tool calling):
 ```bash
-platform=<?ono 
-detect the operating system and check what package managers are installed
+# Establish context
+analysis=<?ono 
+@context="new"
+analyze this codebase structure
 ?>
-```
 
-**Model mode** (pure text generation using established context):
-```bash
-install_cmd=<?ono 
+# Build on previous context  
+tests=<?ono 
 @context="preserve_previous"
-generate the appropriate install command using the detected package manager
+generate unit tests based on the analysis above
 ?>
 ```
 
-You can also force a specific mode:
+## Build Metadata
+
+Ono tracks build information to enable reproducible builds:
+
 ```bash
-<?ono 
-@mode="agent"
-inspect the current directory structure
-?>
+#!/bin/bash
+# ONO_BUILD_INFO_START
+# build_id: 20250529-143022-abc123
+# timestamp: 2025-05-29T14:30:22Z  
+# ono_version: 1.2.3
+# source: deploy.sh.ono
+# ONO_BUILD_INFO_END
 
-<?ono 
-@mode="model"
-@context="preserve_previous" 
-create a README based on the directory structure above
-?>
+tmp="/tmp"
+apt install mypackage
 ```
 
-## Context-Aware Cross-Compilation
+For structured data formats:
 
-For production deployments, ono supports two-phase execution:
+```json
+{
+  "@n@": {
+    "build_id": "abc123",
+    "source": "config.json.ono"
+  },
+  "database": {
+    "host": "localhost",
+    "port": 5432
+  }
+}
+```
 
-**Phase 1: Analyze context requirements**
+Control metadata placement:
+
 ```bash
-ono --analyze deploy.sh.ono > context.yaml
+ono --format bash --meta inline deploy.sh.ono    # Inline comments (default)
+ono --format json --meta file config.json.ono    # Separate .ono-meta file  
+ono --format json --meta none config.json.ono    # No metadata
 ```
-
-**Phase 2: Generate with specific context**  
-```bash
-# Local development
-ono --format bash --context auto deploy.sh.ono > deploy.sh
-
-# Production deployment  
-ono --format bash --context prod-context.yaml deploy.sh.ono > deploy-prod.sh
-```
-
-Where `prod-context.yaml` specifies the target environment:
-```yaml
-username: "appuser" 
-operating_system: "ubuntu-22.04"
-temp_directory: "/var/tmp"
-package_manager: "apt"
-python_executable_path: "/usr/bin/python3.11"
-```
-
-This enables true "cross-compilation" - generate scripts for environments you don't have direct access to.
 
 ## Installation & Setup
 
 ```bash
 pip install ono-preprocessor
-ono init
 ```
 
-The setup wizard will ask you to choose an AI agent backend:
+Ono works with any OpenAI-compatible API endpoint:
 
-```
-Welcome to ono! 
-
-Which agent would you like to use?
-1. Aider (recommended for code tasks) [default]
-2. Open Interpreter (general system tasks) 
-3. LangChain (enterprise/custom workflows)
-4. CrewAI (multi-agent workflows)
-
-Choice [1]: 
+```bash
+export ONO_API_URL="http://localhost:8000/v1"  # vLLM
+# or export ONO_API_URL="https://api.openai.com/v1"  # OpenAI
 ```
 
-ono will automatically install and configure your chosen agent. That's it - you're ready to go!
+For a quick test without installation:
 
-## Agent Backend
-
-ono works by sending requests to AI agents that handle the complexity of model selection, tool calling, and system interaction. The agent manages:
-- LLM connections and API keys
-- Model routing and fallbacks  
-- Tool calling and system access
-- Security and sandboxing
-
-You don't need to configure LLM backends directly - your chosen agent handles all of that.
+```bash
+# Try it instantly with our demo server
+cat yourfile.ono | nc demo.onolang.com 8080
+```
 
 ## Examples
 
@@ -264,7 +200,7 @@ database:
 
 ## Why "Ono"?
 
-The name comes from PHP with the straight lines removed: php → ono. Just like how Ono takes PHP's templating concept and makes it more fluid for the AI age.
+The name comes from PHP with the straight lines removed: **p**hp → **o**no. Just like how ono takes PHP's templating concept and makes it more fluid for the AI age.
 
 Plus, it captures that "oh no, this is complicated" moment when you realize you need AI to figure it out instead of spending 30 minutes on Stack Overflow.
 
