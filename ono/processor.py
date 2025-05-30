@@ -1,5 +1,7 @@
 from typing import List, Dict, Any
-from ono.parser import ParsedItem
+from ono.parser import OnoParser
+from ono.llm import LLMClient
+from ono.config import OnoConfig
 
 class TwoPassProcessor:
     """
@@ -14,50 +16,36 @@ class TwoPassProcessor:
         """
         Initializes the TwoPassProcessor.
         """
-        pass
+        self.config = OnoConfig()
+        self.llm_client = LLMClient()
+        self.parser = OnoParser()
 
-    def process(self, parsed_content: List[ParsedItem], context: Dict[str, Any]) -> str:
+    def process(self, text: str) -> str:
         """
-        Processes the parsed content in two passes.
+        Processes the input text, extracting Ono blocks, sending them to the LLM,
+        and replacing them with the processed content.
 
         Args:
-            parsed_content: A list of ParsedItem objects representing the parsed content.
-            context: A dictionary containing context information.
+            text: The input text to process.
 
         Returns:
-            The processed content as a string.
+            The processed text.
         """
-        # 1. Concept Pass
-        concept_pass_results = self._concept_pass(parsed_content, context)
+        parsed_content = self.parser.parse(text)
+        ono_blocks = self.parser.extract_ono_blocks(parsed_content)
 
-        # 2. Syntax Pass
-        syntax_pass_results = self._syntax_pass(concept_pass_results)
+        processed_blocks = []
+        for block in ono_blocks:
+            try:
+                response = self.llm_client.generate_text(block)
+                processed_blocks.append(response)
+            except Exception as e:
+                print(f"Error processing block: {e}")
+                return text  # Return original text in case of error
 
-        return syntax_pass_results
+        # Replace Ono blocks with processed content
+        output_text = text
+        for i, block in enumerate(ono_blocks):
+            output_text = output_text.replace(f"<?ono {block} ?>", processed_blocks[i])
 
-    def _concept_pass(self, parsed_content: List[ParsedItem], context: Dict[str, Any]) -> List[ParsedItem]:
-        """
-        Performs the concept pass, focusing on semantic understanding and context injection.
-
-        Args:
-            parsed_content: A list of ParsedItem objects representing the parsed content.
-            context: A dictionary containing context information.
-
-        Returns:
-            A list of ParsedItem objects with the concept pass applied.
-        """
-        # TODO: Implement the concept pass logic here
-        return parsed_content
-
-    def _syntax_pass(self, parsed_content: List[ParsedItem]) -> str:
-        """
-        Performs the syntax pass, focusing on format-specific syntax generation.
-
-        Args:
-            parsed_content: A list of ParsedItem objects representing the parsed content.
-
-        Returns:
-            The processed content as a string.
-        """
-        # TODO: Implement the syntax pass logic here
-        return "".join(item.content for item in parsed_content)
+        return output_text

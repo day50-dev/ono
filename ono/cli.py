@@ -1,5 +1,8 @@
 import typer
 from typing import Optional
+from ono.parser import OnoParser
+from ono.processor import TwoPassProcessor
+from ono.config import OnoConfig
 
 app = typer.Typer()
 
@@ -14,10 +17,29 @@ def main(
     Ono is a universal templating preprocessor that uses AI to solve those annoying
     cross-platform, language-specific problems you don't want to think about.
     """
-    print(f"Input: {input}")
-    print(f"Context: {context}")
-    print(f"Format: {format}")
-    print(f"Output: {output}")
+
+    config = OnoConfig()
+    processor = TwoPassProcessor()
+    parser = OnoParser()
+
+    try:
+        with open(input, "r") as f:
+            text = f.read()
+    except FileNotFoundError:
+        print(f"Error: Input file not found: {input}")
+        return
+
+    processed_text = processor.process(text)
+
+    if output:
+        try:
+            with open(output, "w") as f:
+                f.write(processed_text)
+            print(f"Output written to: {output}")
+        except Exception as e:
+            print(f"Error writing to output file: {e}")
+    else:
+        print(processed_text)
 
 if __name__ == "__main__":
     app()
