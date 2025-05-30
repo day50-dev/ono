@@ -1,0 +1,7 @@
+{
+  "database": {
+    "host": "<?ono get database host from environment or default to localhost ?>",
+    "port": <?ono get appropriate database port for postgresql ?>,
+    "ssl_mode": "<?ono determine ssl requirements based on environment ?>"
+  }
+}

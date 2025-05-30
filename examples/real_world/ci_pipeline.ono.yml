@@ -1,0 +1,14 @@
+# .gitlab-ci.yml
+stages:
+  - test
+  - deploy
+
+test:
+  stage: test
+  script:
+    - <?ono generate appropriate test command ?>
+
+deploy:
+  stage: deploy
+  script:
+    - <?ono generate appropriate deployment command ?>

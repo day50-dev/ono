@@ -1,0 +1,17 @@
+# Establish context
+analysis=<?ono
+@context="new"
+analyze this codebase structure
+?>
+
+# Build on previous context
+tests=<?ono
+@context="preserve_previous"
+generate unit tests based on the analysis above
+?>
+
+# Use a specific context
+deploy=<?ono
+@context="analysis"
+generate deployment script based on the analysis
+?>

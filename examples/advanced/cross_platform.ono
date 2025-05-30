@@ -1,0 +1,5 @@
+#!/bin/bash
+# Works on Windows, macOS, and Linux
+PYTHON_EXEC=<?ono find python executable path ?>
+VENV_DIR=<?ono get appropriate virtual environment directory ?>
+$PYTHON_EXEC -m venv $VENV_DIR
