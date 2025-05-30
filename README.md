@@ -6,90 +6,128 @@ Ono is a universal templating preprocessor that uses AI to solve those annoying 
 
 ## Why Ono?
 
-Ever written a script that needs to find the user's temp directory? Congratulations, you just signed up for:
-- Environment variables (`$TMPDIR`, `$TMP`, `$TEMP`)
-- Platform differences (Windows vs macOS vs Linux)  
-- XDG standards and appdirs conventions
-- Edge cases you never thought of
+Ever tried to write a script that needs to safely kill a process on an unknown system? Or find what's listening on a port across different Unix variants? These "simple" tasks explode into platform-specific complexity:
+
+```bash
+#!/bin/bash
+port_to_free=8080
+
+# The traditional nightmare of cross-platform compatibility
+if command -v lsof >/dev/null 2>&1; then
+    pid=$(lsof -ti:$port_to_free)
+elif command -v netstat >/dev/null 2>&1; then
+    # Different netstat flags on different systems...
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        pid=$(netstat -anp tcp | grep ":$port_to_free " | awk '{print $9}' | cut -d. -f1)
+    else
+        pid=$(netstat -tlnp | grep ":$port_to_free " | awk '{print $7}' | cut -d/ -f1)
+    fi
+# ... 50 more lines of platform detection
+```
 
 With Ono:
 
 ```bash
 #!/bin/bash
-tmp="?ono get users temp directory ?"
-python_exec="?ono find python executable path ?"
-config_dir="?ono get users config directory ?"
+port_to_free=8080
 
-echo "Using Python: $python_exec"
-echo "Config at: $config_dir"
-echo "Temp files: $tmp"
+cleanup_result="?ono find process on port $port_to_free, attempt graceful shutdown, verify port is freed, return 'SUCCESS' only if $check_port_free($port_to_free) confirms port is available ?"
+
+if [ "$cleanup_result" != "SUCCESS" ]; then
+    force_result="?ono force kill process on $port_to_free and verify $(netstat -tuln | grep -v ":$port_to_free") shows port is free ?"
+fi
 ```
 
-Run `ono deploy.ono.sh > deploy.sh` and get perfect cross-platform code that just works.
+## Real-World Use Cases
 
-## Glamorous Examples
-
-**Smart Configuration:**
-```json
-{
-  "database": {
-    "host": "?ono get database host from environment or default to localhost ?",
-    "port": "?ono get appropriate database port for postgresql ?",
-    "ssl_mode": "?ono determine ssl requirements based on environment ?"
-  },
-  "cache": {
-    "dir": "?ono get platform appropriate cache directory ?",
-    "size": "?ono calculate optimal cache size for this system ?"
-  }
-}
+**Cross-Platform Process Management:**
+```bash
+# Works on Linux, macOS, BSD variants
+running_services="?ono list all processes listening on network ports with process names ?"
+webapp_pid="?ono find PID of process matching 'webapp' pattern using $ps_command($grep_flags) ?"
+safe_kill="?ono safely terminate $webapp_pid with proper cleanup and verification ?"
 ```
 
-**Intelligent Docker:**
-```dockerfile  
-FROM ubuntu:22.04
+**Docker Intelligence:**
+```dockerfile
+# Analyzes your codebase to make smart decisions
+FROM "?ono determine optimal base image for this python flask app with minimal attack surface ?"
+
 WORKDIR "?ono get appropriate working directory for containerized python apps ?"
 
-# Smart package installation
-RUN "?ono generate apt install command with security best practices for python development ?"
+# Installs only what's needed, with proper security
+RUN "?ono analyze requirements.txt and generate secure apt install with caching for $package_list ?"
 
-# Platform-aware Python setup
-ENV PYTHON_PATH="?ono get optimal python path for containers ?"
-COPY requirements.txt .
-RUN "?ono generate pip install command with caching and security flags ?"
+# Smart port selection
+EXPOSE "?ono determine best port for flask app avoiding common conflicts with $existing_services ?"
+
+HEALTHCHECK "?ono create appropriate health check for flask app at $app_endpoint ?"
 ```
 
-**Cross-Platform Scripts:**
-```python
-#!/usr/bin/env python3
-import os
+**Database Migration Scripts:**
+```sql
+-- Adapts to your specific database version and setup
+"?ono create table for user sessions with appropriate column types for $database_version ?";
 
-# Works everywhere
-temp_dir = "?ono get users temp directory ?"
-home_dir = "?ono get users home directory ?"
-app_data = "?ono get appropriate application data directory ?"
+"?ono add index on sessions table optimized for $query_patterns with proper naming for $db_engine ?";
 
-# Smart defaults
-database_url = "?ono construct database url with proper escaping and defaults ?"
-api_timeout = "?ono calculate appropriate timeout for api calls based on environment ?"
-
-# Platform-aware logic
-backup_cmd = "?ono generate cross-platform backup command with error handling ?"
+"?ono generate migration rollback script for the above changes compatible with $migration_system ?";
 ```
 
-## How It Works
+**Microservice Orchestration:**
+```yaml
+# Kubernetes manifest that adapts to your environment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "?ono generate service name from $project_config ?"-service
+spec:
+  replicas: "?ono determine optimal replica count for $service_load_requirements ?"
+  template:
+    spec:
+      containers:
+      - name: app
+        resources:
+          limits:
+            memory: "?ono calculate memory limit for $app_type with $expected_traffic ?"
+            cpu: "?ono determine cpu limit based on $performance_profile ?"
+```
 
-Ono uses flexible `"?ono ... ?"` syntax that works in any file format. The AI understands your intent, analyzes the surrounding context, and generates the right solution for your target platform.
-
-**Simple requests** become direct substitutions:
+**Install Scripts:**
 ```bash
-user="?ono get current username ?"
-# → user="john"
+#!/bin/bash
+# Handles every possible system configuration
+package_manager="?ono detect available package manager and return command syntax ?"
+dependencies="?ono install python development dependencies using $package_manager with proper error handling ?"
+
+# Smart Python setup
+python_setup="?ono configure python environment with $python_version, create venv at $venv_path($project_name), handle $path_requirements ?"
 ```
 
-**Complex requests** get lifted into smart functions:
+## Variable Substitution
+
+Ono supports intelligent variable substitution with universal syntax:
+
+- **Variables**: `$variable_name` → platform-appropriate variable access
+- **Function calls**: `$function_name($args)` → proper calling convention  
+- **Expressions**: `$(expression)` → evaluated expressions
+
 ```python
-backup_strategy = "?ono create robust backup system with retry logic ?"
-# → Generates full function with error handling, platform detection, etc.
+# Universal template
+config_path = "?ono get config directory and create $config_file($app_name.conf) with proper $permissions(644) ?"
+db_connection = "?ono establish database connection to $db_host with timeout $timeout_calc($load_factor + 30) ?"
+```
+
+**Becomes Python:**
+```python
+config_path = get_config_dir() + "/" + create_config_file(f"{app_name}.conf", permissions=0o644)  
+db_connection = create_db_connection(db_host, timeout=timeout_calc(load_factor + 30))
+```
+
+**Becomes Bash:**
+```bash
+config_path=$(get_config_dir && create_config_file "${app_name}.conf" 644)
+db_connection=$(establish_db_connection "$db_host" $((load_factor + 30)))
 ```
 
 ## Quick Start
@@ -103,34 +141,27 @@ export ONO_API_URL="http://localhost:8000/v1"
 
 # Process templates
 ono deploy.ono.sh > deploy.sh
-ono config.ono.json > config.json
-ono app.ono.py > app.py
+ono docker-compose.ono.yml > docker-compose.yml
+ono migration.ono.sql > migration.sql
 
 # Try it instantly (no install)
-echo 'temp="?ono get temp directory ?"' | nc demo.onolang.com 8080
+echo 'cleanup="?ono safely kill process on port $target_port ?"' | nc demo.onolang.com 8080
 ```
 
-## Context Magic
+## Context Intelligence
 
-Build sophisticated workflows with context management:
+Build sophisticated workflows with automatic context management:
 
-```python
-# Establish analysis context
-architecture = "?ono 
-@context=preserve_previous/analysis
-analyze this microservices codebase and identify key components
-?"
+```bash
+# Analyzes your system (creates "system" context)
+system_info="?ono context=system analyze this server environment and identify key services ?"
 
-# Branch for different tasks
-tests = "?ono 
-@context=preserve_previous/analysis/testing
-generate comprehensive integration tests for the services above
-?"
+# Uses system analysis for smart decisions  
+monitoring_setup="?ono context=system setup appropriate monitoring for the identified services ?"
 
-docs = "?ono 
-@context=preserve_previous/analysis/docs  
-write API documentation for the analyzed services
-?"
+# Forks context for specific tasks
+backup_strategy="?ono context=system/backup design backup strategy for $critical_services ?"
+security_audit="?ono context=system/security audit the identified services for common vulnerabilities ?"
 ```
 
 ## File Convention
@@ -138,10 +169,10 @@ write API documentation for the analyzed services
 Use `.ono.ext` naming to keep syntax highlighting and tool compatibility:
 
 ```
-deploy.ono.sh       # → deploy.sh
-config.ono.json     # → config.json  
-app.ono.py          # → app.py
-Dockerfile.ono      # → Dockerfile
+deploy.ono.sh           # → deploy.sh
+docker-compose.ono.yml  # → docker-compose.yml  
+migrate.ono.sql         # → migrate.sql
+k8s-config.ono.yaml     # → k8s-config.yaml
 ```
 
 ## Smart Metadata
@@ -157,21 +188,14 @@ Every generated file includes build info for reproducibility:
 # ono_version=0.1.0
 # ?
 
-temp_dir="/tmp"
+cleanup_result="SUCCESS"
 ```
 
 ## Why "Ono"?
 
 The name comes from **p**hp → **o**no (removing the straight lines). Just like how ono takes PHP's templating concept and makes it fluid for the AI age.
 
-Plus, it captures that "oh no, this is complicated" moment when you realize you need AI to figure it out instead of spending 30 minutes on Stack Overflow.
-
-## What's Next?
-
-- Template marketplace integration
-- IDE extensions for `.ono.*` files  
-- CI/CD pipeline templates
-- Advanced context sharing
+Plus, it captures that "oh no, this is complicated" moment when you realize you need AI to figure it out instead of spending hours researching platform-specific edge cases.
 
 ---
 

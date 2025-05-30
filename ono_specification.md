@@ -61,7 +61,68 @@ current_user=?ono get current username ?
 }
 ```
 
-## 4. Configuration Syntax
+## 4. Variable Substitution
+
+### 4.1 Substitution Syntax
+
+Ono supports intelligent variable substitution within ono blocks using universal syntax that translates to target language conventions:
+
+**Variable Access:**
+```
+$variable_name
+```
+
+**Function Calls:**
+```
+$function_name($arg1, $arg2)
+```
+
+**Expression Evaluation:**
+```
+$(expression)
+```
+
+### 4.2 Substitution Examples
+
+**Universal Template:**
+```bash
+result="?ono process data from $input_file using $processor_func($config_param) with timeout $(base_timeout + 10) ?"
+```
+
+**Bash Output:**
+```bash
+result=$(process_data "$input_file" "$(processor_func "$config_param")" "$((base_timeout + 10))")
+```
+
+**Python Output:**
+```python
+result = process_data(input_file, processor_func(config_param), base_timeout + 10)
+```
+
+**JavaScript Output:**
+```javascript
+result = processData(inputFile, processorFunc(configParam), baseTimeout + 10);
+```
+
+### 4.3 Parsing Rules
+
+The substitution parser uses a stack-based approach:
+
+- `$identifier` → Variable substitution
+- `$identifier(` → Function call (parser pushes stack for arguments)
+- `$(` → Expression stanza (parser pushes stack for expression evaluation)
+- `)` → Pop parser stack
+
+**Complex Example:**
+```
+"?ono create backup using $backup_tool($source_dir, $dest_calc($base_path, $project_name), $(retention_days * 24)) ?"
+```
+
+Parsed as:
+- `$backup_tool` → function call with three arguments:
+  - `$source_dir` → variable
+  - `$dest_calc($base_path, $project_name)` → nested function call
+  - `$(retention_days * 24)` → expression evaluation
 
 ### 4.1 Block-Level Configuration
 
@@ -77,7 +138,7 @@ get database configuration for production environment
 ?"
 ```
 
-### 4.2 Parameter Types
+## 5. Configuration Syntax
 
 **Pass-through Parameters** (sent directly to LLM):
 - `model=<string>` - LLM model to use
@@ -86,12 +147,12 @@ get database configuration for production environment
 - Any other parameter supported by the LLM API
 
 **Ono-Specific Parameters** (prefixed with `@`):
-- `@context=<string>` - Context management directive
+- `@context=<string>` - Context management directive  
 - `@execution=<string>` - Execution control directive
 - `@meta=<string>` - Metadata handling directive
 - `@type=<string>` - Block type (model, agent, meta, source)
 
-### 4.3 File-Level Configuration
+### 5.3 File-Level Configuration
 
 Global settings for a file can be specified in comments at the top:
 
@@ -113,55 +174,33 @@ database_url = 🐊?ono get database connection 🦋
 - `@ono.temperature = <float>` - Default temperature
 - `@ono.meta = <string>` - Default metadata style
 
-## 5. Context Management
+## 6. Context Management
 
-### 5.1 Context Directives
+### 6.1 Context Directives
 
 | Directive | Behavior |
 |-----------|----------|
-| `@context=new` | Create fresh context, ignore previous conversations |
-| `@context=preserve_previous` | Continue from the most recent context |
-| `@context=preserve_previous/path` | Use or create named context branch |
+| (no context specified) | Create fresh context for each block |
+| `context=<name>` | Create or use named context |
+| `context=<name>/<path>` | Create context branch (fork from parent) |
 
-### 5.2 Context Paths
-
-Context paths use forward-slash notation for hierarchical organization:
-
-```
-preserve_previous                    # Root context
-preserve_previous/analysis          # Branch: analysis
-preserve_previous/analysis/testing  # Sub-branch: testing
-preserve_previous/docs              # Branch: docs
-```
-
-**Path Resolution:**
-- Paths are resolved relative to `preserve_previous`
-- New paths are created automatically on first use
-- Contexts inherit conversation history from their parent path
-
-### 5.3 Context Examples
+### 6.2 Context Examples
 
 ```bash
-# Establish analysis context
-architecture="?ono 
-@context=preserve_previous/analysis
-analyze this microservices architecture
-?"
+# Creates new context (default - no context specified)
+system_info="?ono analyze this server environment ?"
 
-# Branch for testing
-tests="?ono 
-@context=preserve_previous/analysis/testing  
-generate integration tests for the services analyzed above
-?"
+# Creates "system" context, inherits from previous if available
+services="?ono context=system identify running services on this system ?"
 
-# Branch for documentation
-docs="?ono
-@context=preserve_previous/analysis/docs
-write API documentation for the analyzed services
-?"
+# Forks "system" context to create "system/monitoring" 
+monitoring="?ono context=system/monitoring setup monitoring for the identified services ?"
+
+# Another fork: "system/backup"
+backup="?ono context=system/backup design backup strategy for critical services ?"
 ```
 
-## 6. Execution Control
+## 7. Execution Control
 
 ### 6.1 Execution Directives
 
@@ -180,7 +219,7 @@ write API documentation for the analyzed services
 | `@scope=global` | Shared across all files in project |
 | `@scope=instance` | Separate execution per instance |
 
-## 7. File Naming Convention
+## 8. File Naming Convention
 
 Ono template files use the `.ono.<extension>` naming pattern:
 
@@ -196,7 +235,7 @@ Dockerfile.ono      # Dockerfile template
 - Clear identification of template files
 - Tool integration (build systems, IDEs)
 
-## 8. Processing Model
+## 9. Processing Model
 
 ### 8.1 Two-Pass Processing
 
@@ -265,7 +304,7 @@ Source File (.ono.ext) → Parser → Concept Pass → Complexity Analysis → S
                         Context Mgr → LLM API → Function Lifting → Validator
 ```
 
-## 9. Build Metadata
+## 10. Build Metadata
 
 ### 9.1 Metadata Formats
 
@@ -314,7 +353,7 @@ ono --meta file source.ono.json    # Separate .ono-meta file
 ono --meta none source.ono.sh      # No metadata
 ```
 
-## 10. Command Line Interface
+## 11. Command Line Interface
 
 ### 10.1 Basic Processing
 
@@ -356,7 +395,7 @@ ono validate source.ono.py
 ono --version
 ```
 
-## 11. Configuration
+## 12. Configuration
 
 ### 11.1 Global Configuration
 
@@ -401,7 +440,7 @@ formats:
     validator: "hadolint"
 ```
 
-## 12. Error Handling
+## 13. Error Handling
 
 ### 12.1 Parse Errors
 
@@ -432,7 +471,7 @@ Warning: Context 'preserve_previous/analysis' not found
   Created new context branch
 ```
 
-## 13. Language Integration
+## 14. Language Integration
 
 ### 13.1 Supported Output Formats
 
@@ -459,7 +498,7 @@ Warning: Context 'preserve_previous/analysis' not found
 - Proper data type conversion
 - Comment preservation (where supported)
 
-## 14. Security Considerations
+## 15. Security Considerations
 
 ### 14.1 Input Validation
 
@@ -479,7 +518,7 @@ Warning: Context 'preserve_previous/analysis' not found
 - Request rate limiting
 - Connection encryption
 
-## 15. Future Extensions
+## 16. Future Extensions
 
 ### 15.1 Planned Features
 
