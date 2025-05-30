@@ -89,6 +89,7 @@ get database configuration for production environment
 - `@context=<string>` - Context management directive
 - `@execution=<string>` - Execution control directive
 - `@meta=<string>` - Metadata handling directive
+- `@type=<string>` - Block type (model, agent, meta, source)
 
 ### 4.3 File-Level Configuration
 
@@ -281,6 +282,9 @@ ono --format python source.ono.py > output.py
 
 # Process with options
 ono --meta file --context new source.ono.json > output.json
+
+# Include source debugging information
+ono -g source.ono.py > output.py
 ```
 
 ### 10.2 Context Management
@@ -452,5 +456,5 @@ This specification defines Ono Language v0.1. Future versions will maintain back
 ---
 
 **Specification Version**: 0.1  
-**Date**: January 29, 2025  
+**Date**: May 30, 2025  
 **Status**: Draft
