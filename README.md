@@ -139,59 +139,100 @@ ono --format powershell deploy.ono > deploy.ps1
 ono --format python deploy.ono > deploy.py
 ```
 
-## Execution Control
+## Execution Modes
 
-Control when and how often Ono blocks execute:
+ono automatically detects whether your request needs agent capabilities or just model completion:
 
+**Agent mode** (system inspection, file access, tool calling):
 ```bash
-# Execute once and cache result (great for loops)
-for i in {1..10}; do
-    temp=<?ono 
-    @execution="once"
-    @scope="global" 
-    get users temp directory
-    ?>
-    echo "Iteration $i: $temp"
-done
-```
-
-## Model Selection & Cost Management
-
-Mix expensive and cheap models strategically:
-
-```bash
-# Use expensive model for complex analysis
-architecture=<?ono
-model="claude-3-5-sonnet"
-@context="analysis"
-analyze this complex distributed system architecture
-?>
-
-# Fork to cheap local model for code generation
-<?ono
-model="llama3-8b"  
-@context="analysis/codegen"
-generate boilerplate code based on the architecture above
+platform=<?ono 
+detect the operating system and check what package managers are installed
 ?>
 ```
 
-## Installation
+**Model mode** (pure text generation using established context):
+```bash
+install_cmd=<?ono 
+@context="preserve_previous"
+generate the appropriate install command using the detected package manager
+?>
+```
+
+You can also force a specific mode:
+```bash
+<?ono 
+@mode="agent"
+inspect the current directory structure
+?>
+
+<?ono 
+@mode="model"
+@context="preserve_previous" 
+create a README based on the directory structure above
+?>
+```
+
+## Context-Aware Cross-Compilation
+
+For production deployments, ono supports two-phase execution:
+
+**Phase 1: Analyze context requirements**
+```bash
+ono --analyze deploy.sh.ono > context.yaml
+```
+
+**Phase 2: Generate with specific context**  
+```bash
+# Local development
+ono --format bash --context auto deploy.sh.ono > deploy.sh
+
+# Production deployment  
+ono --format bash --context prod-context.yaml deploy.sh.ono > deploy-prod.sh
+```
+
+Where `prod-context.yaml` specifies the target environment:
+```yaml
+username: "appuser" 
+operating_system: "ubuntu-22.04"
+temp_directory: "/var/tmp"
+package_manager: "apt"
+python_executable_path: "/usr/bin/python3.11"
+```
+
+This enables true "cross-compilation" - generate scripts for environments you don't have direct access to.
+
+## Installation & Setup
 
 ```bash
 pip install ono-preprocessor
+ono init
 ```
 
-## LLM Backend
+The setup wizard will ask you to choose an AI agent backend:
 
-Ono works with any LLM backend that supports the OpenAI API format. We recommend using [vLLM](https://github.com/vllm-project/vllm) or [liteLLM](https://github.com/BerriAI/litellm) for model serving and routing.
-
-Configure your LLM backend in `~/.ono/config.yaml`:
-
-```yaml
-provider: litellm
-endpoint: http://localhost:8000/v1
-api_key: your-key-here
 ```
+Welcome to ono! 
+
+Which agent would you like to use?
+1. Aider (recommended for code tasks) [default]
+2. Open Interpreter (general system tasks) 
+3. LangChain (enterprise/custom workflows)
+4. CrewAI (multi-agent workflows)
+
+Choice [1]: 
+```
+
+ono will automatically install and configure your chosen agent. That's it - you're ready to go!
+
+## Agent Backend
+
+ono works by sending requests to AI agents that handle the complexity of model selection, tool calling, and system interaction. The agent manages:
+- LLM connections and API keys
+- Model routing and fallbacks  
+- Tool calling and system access
+- Security and sandboxing
+
+You don't need to configure LLM backends directly - your chosen agent handles all of that.
 
 ## Examples
 
@@ -223,7 +264,7 @@ database:
 
 ## Why "Ono"?
 
-The name comes from PHP with the straight lines removed: **P**HP → **O**N**O**. Just like how Ono takes PHP's templating concept and makes it more fluid for the AI age.
+The name comes from PHP with the straight lines removed: **p**hp → **o**no. Just like how ono takes PHP's templating concept and makes it more fluid for the AI age.
 
 Plus, it captures that "oh no, this is complicated" moment when you realize you need AI to figure it out instead of spending 30 minutes on Stack Overflow.
 
