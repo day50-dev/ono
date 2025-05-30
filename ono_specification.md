@@ -158,21 +158,24 @@ Global settings for a file can be specified in comments at the top:
 
 ```python
 #!/usr/bin/env python
-# @ono.delimiters = 🐊, 🦋
-# @ono.model = gpt-4
-# @ono.context = deployment
-# @ono.execution = once
+# ?ono
+# type=config
+# delimiters=🐊, 🦋
+# model=gpt-4
+# context=deployment
+# execution=once
+# ?
 
-database_url = 🐊?ono get database connection 🦋
+database_url = 🐊?ono get database connection string 🦋
 ```
 
 **Supported File-Level Directives:**
-- `@ono.delimiters = <open>, <close>` - Custom delimiter pair
-- `@ono.model = <string>` - Default model for all blocks
-- `@ono.context = <string>` - Default context path
-- `@ono.execution = <string>` - Default execution mode
-- `@ono.temperature = <float>` - Default temperature
-- `@ono.meta = <string>` - Default metadata style
+- `delimiters=<open>, <close>` - Custom delimiter pair
+- `model=<string>` - Default model for all blocks
+- `context=<string>` - Default context path
+- `execution=<string>` - Default execution mode
+- `temperature=<float>` - Default temperature
+- `meta=<string>` - Default metadata style
 
 ## 6. Context Management
 
