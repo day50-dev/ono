@@ -314,13 +314,14 @@ Source File (.ono.ext) → Parser → Concept Pass → Complexity Analysis → S
 **Inline Comments** (default for comment-supporting languages):
 ```bash
 #!/bin/bash
-# ONO_BUILD_INFO_START
-# build_id: 20250129-143022-abc123
-# timestamp: 2025-01-29T14:30:22Z
-# ono_version: 0.1.0
-# source: deploy.ono.sh
-# blocks: [{id: 1, resolved: "/tmp", model: "claude-3-5-sonnet"}]
-# ONO_BUILD_INFO_END
+# ?ono
+# type=meta
+# build_id=20250530-143022-abc123
+# timestamp=2025-05-30T14:30:22Z
+# ono_version=0.1.0
+# source=deploy.ono.sh
+# blocks=[{id: 1, resolved: "/tmp", model: "claude-3-5-sonnet"}]
+# ?
 
 temp_dir="/tmp"
 ```
