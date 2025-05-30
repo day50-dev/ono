@@ -206,20 +206,63 @@ Ono uses a two-pass processing model:
 - Analyzes full file context
 - Sends natural language request to LLM
 - Generates semantically appropriate response
-- Focuses on content correctness
+- Determines complexity level and extraction needs
 
 **Pass 2: Syntax Pass**
 - Applies target format requirements
 - Handles escaping and quoting
+- Extracts complex logic using function lifting
 - Validates syntax when possible
 - Ensures output compatibility
 
-### 8.2 Processing Flow
+### 8.2 Function Lifting
+
+When ono blocks require complex logic (loops, assignments, side effects), the solution is automatically extracted into helper functions using a preference hierarchy:
+
+**Preference Hierarchy:**
+1. **Simple substitution** - Direct string/value replacement
+2. **Inline expression** - Single expression that fits naturally
+3. **Nested function** - Extract complexity, keep local scope
+4. **Adjacent function** - Same file, broader scope  
+5. **External library** - Separate file for reusability
+6. **Global function** - Last resort
+
+**Naming Convention:**
+Generated functions and variables use preprocessor-style naming:
+- `_ono_fn_*` - Functions (e.g., `_ono_fn_get_backup_dir`)
+- `_ono_var_*` - Variables (e.g., `_ono_var_platform_type`)
+- `_ono_cls_*` - Classes (e.g., `_ono_cls_config_manager`)
+- `_ono_const_*` - Constants (e.g., `_ono_const_timeout`)
+
+**Example:**
+```python
+# Original ono block
+backup_strategy = "?ono determine backup strategy based on platform with error handling ?"
+
+# Generated output with function lifting
+def _ono_fn_determine_backup_strategy():
+    import platform
+    import os
+    
+    system = platform.system().lower()
+    if system == "windows":
+        # Complex Windows backup logic
+        drives = [d for d in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" if os.path.exists(d + ":")]
+        return f"robocopy /MIR source {drives[0]}:/backup"
+    elif system == "darwin":
+        return "rsync -av --delete source/ ~/backup/"
+    else:
+        return "tar -czf /tmp/backup.tar.gz source/"
+
+backup_strategy = _ono_fn_determine_backup_strategy()
+```
+
+### 8.3 Processing Flow
 
 ```
-Source File (.ono.ext) → Parser → Concept Pass → Syntax Pass → Output File (.ext)
-                             ↓           ↓            ↓
-                        Context Mgr → LLM API → Validator
+Source File (.ono.ext) → Parser → Concept Pass → Complexity Analysis → Syntax Pass → Output File (.ext)
+                             ↓           ↓              ↓              ↓
+                        Context Mgr → LLM API → Function Lifting → Validator
 ```
 
 ## 9. Build Metadata
