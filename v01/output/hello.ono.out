@@ -1,0 +1,6 @@
+Error parsing ../examples/basic/hello.ono.sh: No terminal matches 'H' in the current parser context, at line 6 col 7
+
+echo "Hello, $USERNAME!"
+      ^
+Expected one of: 
+	* __ANON_0

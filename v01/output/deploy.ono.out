@@ -1,0 +1,6 @@
+Error parsing ../examples/basic/deploy.ono.py: No terminal matches '<' in the current parser context, at line 4 col 13
+
+TEMP_DIR = "<?ono get users temp directory ?>"
+            ^
+Expected one of: 
+	* __ANON_0

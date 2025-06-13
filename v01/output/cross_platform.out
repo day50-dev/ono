@@ -1,0 +1,8 @@
+Error parsing ../examples/advanced/cross_platform.ono: No terminal matches '$' in the current parser context, at line 5 col 1
+
+$PYTHON_EXEC -m venv $VENV_DIR
+^
+Expected one of: 
+	* __ANON_0
+	* TEXT
+	* OPEN_DELIM

@@ -1,0 +1,6 @@
+Error parsing ../examples/basic/config.ono.json: No terminal matches '{' in the current parser context, at line 1 col 1
+
+{
+^
+Expected one of: 
+	* TEXT

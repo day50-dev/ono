@@ -1,0 +1,14 @@
+start
+  FROM ubuntu:22.04
+WORKDIR 
+  ono_block
+    <
+    content	 get appropriate working directory for containerized apps 
+    ?>
+  
+COPY requirements.txt .
+RUN 
+  ono_block
+    <
+    content	 generate appropriate pip install command with security best practices 
+    ?>

@@ -1,0 +1,24 @@
+start: (TEXT ono_block?)*
+
+ono_block: OPEN_DELIM "?ono" content CLOSE_DELIM
+         | "?ono" content "?"
+
+content: (TEXT | variable | function_call | expression)*
+
+variable: "$" IDENTIFIER
+
+function_call: "$" IDENTIFIER "(" [argument ("," argument)*] ")"
+
+expression: "$(" TEXT ")"
+
+argument: TEXT | variable | function_call | expression
+
+OPEN_DELIM: "\"" | "'" | "{" | "[" | "<" | "🐊"
+CLOSE_DELIM: "?\"" | "?'" | "?}" | "?]" | "?>" | "?🦋"
+
+IDENTIFIER: /[a-zA-Z_][a-zA-Z0-9_]*/
+
+TEXT: /[^?"'\\[{<$]+/
+
+%ignore " "
+%ignore "\n"
