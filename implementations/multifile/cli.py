@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import typer
 from typing import Optional
 from ono.parser import OnoParser
