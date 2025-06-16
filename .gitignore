@@ -1,2 +1,3 @@
 .venv
-v01/.envrc
+.envrc
+*/.envrc
