@@ -1,0 +1,9 @@
+Error parsing ../examples/advanced/multi_context.ono: No terminal matches '"' in the current parser context, at line 3 col 10
+
+@context="new"
+         ^
+Expected one of: 
+	* DOLLAR
+	* __ANON_1
+	* CLOSE_DELIM
+	* TEXT

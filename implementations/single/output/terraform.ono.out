@@ -1,0 +1,6 @@
+Error parsing ../examples/real_world/terraform.ono.tf: No terminal matches 'r' in the current parser context, at line 3 col 3
+
+  required_providers {
+  ^
+Expected one of: 
+	* __ANON_0
