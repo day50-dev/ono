@@ -635,18 +635,14 @@ Most editors can be configured to recognize \f[V].ono.*\f[R] files:
 \f[B]jinja2\f[R](1)
 .SS BUGS
 .PP
-Report bugs at: https://github.com/day50/ono/issues
+Report bugs at: https://github.com/day50-dev/ono/issues
 .SS AUTHORS
 .PP
-Ono was created as part of the Day50 project to make LLMs effective for
+Ono was created as part of the DA`/50 project to make LLMs effective for
 production development workflows.
 .SS COPYRIGHT
 .PP
-Copyright © 2025 Day50.
 Licensed under the MIT License.
-.PP
-   *   *   *   *   *
-.PP
 \f[B]ono 0.1.0\f[R]
 .PD 0
 .P
