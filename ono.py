@@ -7,6 +7,7 @@
 # ///
 from typing import List, Dict, Any, Tuple, Optional
 from dataclasses import dataclass
+import typer
 
 @dataclass
 class ParsedItem:
@@ -123,27 +124,18 @@ class OnoParser:
                 result.append(f'<?ono {item.content} ?>')
         return ''.join(result)
 
-import typer
-
 app = typer.Typer()
 
 @app.command()
 def main(
     context: Optional[str] = typer.Option(None, "--context", "-c", help="File that establishes context, similar to postman parameters"),
     format: Optional[str] = typer.Option(None, "--format", "-f", help="Destination format, inferred from the type"),
-    input: str = typer.Argument(..., help="Directory, file, or list from globs like *.llm"),
+    backend: Optional[str] = typer.Option(None, "--backend", "-b", help="Backend type"),
+    input: str = typer.Argument(..., help="Directory, file, or list from globs like *.py"),
     output: Optional[str] = typer.Option(None, "--output", "-o", help="A place to put the output of the program"),
 ):
     parser = OnoParser()
-    
-    # Test with your example
-    test_text = """blah blah blah
-blah <?ono capture this <?ono but also this ?> and keep going ?> blah blah"""
-    
-    print("Original text:")
-    print(test_text)
-    print("\nParsed result:")
-    
+
     parsed = parser.parse(test_text)
     for i, item in enumerate(parsed):
         print(f"{i}: {item.type} - '{item.content[:50]}{'...' if len(item.content) > 50 else ''}'")
@@ -156,52 +148,9 @@ blah <?ono capture this <?ono but also this ?> and keep going ?> blah blah"""
     for i, block in enumerate(ono_blocks):
         print(f"Block {i + 1}: '{block}'")
     
-    # Test with more complex nesting
-    print("\n" + "="*50)
-    complex_text = "Start <?ono level1 <?ono level2a ?> middle <?ono level2b <?ono level3 ?> end2b ?> end1 ?> finish"
-    print("Complex nesting test:")
-    print(complex_text)
     
     complex_parsed = parser.parse(complex_text)
     complex_blocks = parser.extract_ono_blocks(complex_parsed)
-    print("\nExtracted blocks:")
-    for i, block in enumerate(complex_blocks):
-        print(f"Context: {context}")
-        print(f"Format: {format}")
-        print(f"Input: {input}")
-        print(f"Output: {output}")
-        
-        # Test with your example
-        test_text = """blah blah blah
-blah <?ono capture this <?ono but also this ?> and keep going ?> blah blah"""
-        
-        print("Original text:")
-        print(test_text)
-        print("\nParsed result:")
-        
-        parsed = parser.parse(test_text)
-        for i, item in enumerate(parsed):
-            print(f"{i}: {item.type} - '{item.content[:50]}{'...' if len(item.content) > 50 else ''}'")
-            if item.parsed:
-                for j, sub_item in enumerate(item.parsed):
-                    print(f"  {j}: {sub_item.type} - '{sub_item.content}'")
-        
-        print("\nExtracted ono blocks:")
-        ono_blocks = parser.extract_ono_blocks(parsed)
-        for i, block in enumerate(ono_blocks):
-            print(f"Block {i + 1}: '{block}'")
-        
-        # Test with more complex nesting
-        print("\n" + "="*50)
-        complex_text = "Start <?ono level1 <?ono level2a ?> middle <?ono level2b <?ono level3 ?> end2b ?> end1 ?> finish"
-        print("Complex nesting test:")
-        print(complex_text)
-        
-        complex_parsed = parser.parse(complex_text)
-        complex_blocks = parser.extract_ono_blocks(complex_parsed)
-        print("\nExtracted blocks:")
-        for i, block in enumerate(complex_blocks):
-            print(f"Block {i + 1}: '{block}'")
 
 if __name__ == "__main__":
     app()
