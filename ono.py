@@ -8,6 +8,7 @@
 from typing import List, Dict, Any, Tuple, Optional
 from dataclasses import dataclass
 import typer
+import logging
 
 @dataclass
 class ParsedItem:
