@@ -9,4 +9,4 @@
 mkdir -p output
 
 # Run the parser
-python3 parser.py ../examples
+python3 parser.py ../../examples

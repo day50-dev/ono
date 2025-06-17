@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import argparse
 from lark import Lark
 from pathlib import Path
@@ -17,13 +18,13 @@ def parse_ono_file(file_path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Parse Ono files in a directory.")
-    parser.add_argument("examples_dir", help="The directory containing the Ono files.")
+    parser.add_argument("dir", help="The directory containing the Ono files.")
     args = parser.parse_args()
 
-    examples_dir = args.examples_dir
+    dir = args.dir
 
-    # Get the list of ono files from the examples directory
-    ono_files = glob.glob(os.path.join(examples_dir, "**/*.ono*"), recursive=True)
+    # Get the list of ono files from the directory
+    ono_files = glob.glob(os.path.join(dir, "**/*.ono*"), recursive=True)
 
     # Create the output directory if it doesn't exist
     os.makedirs("output", exist_ok=True)
