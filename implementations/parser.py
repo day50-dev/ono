@@ -1,10 +1,4 @@
-#!/usr/bin/env python3
-import sys
 import re
-from pprint import pprint
-
-with open(sys.argv[1]) as f:
-    text = f.read()
 
 def delimiters_match(open, close):
     map = {'"': '"', "'": "'", 
@@ -57,13 +51,10 @@ def parse_ranges(rangeList, text):
         onoList.append(ono)
     return onoList
 
-blockList = find_blocks(text)
-rangeList = find_ranges(blockList)
-onoList = parse_ranges(rangeList, text)
+def get_ono_blocks(text):
+    blockList = find_blocks(text)
+    rangeList = find_ranges(blockList)
+    onoList = parse_ranges(rangeList, text)
+    return onoList
 
 
-if len(onoList) == 0:
-    print(f"Nothing found for {text}")
-
-for ono in onoList:
-    pprint(ono)
