@@ -1,0 +1,3 @@
+x = "?ono get temp directory ?"
+y = "?ono get current user ?"
+z = ' {?ono get hostname ?} '

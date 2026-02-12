@@ -2,3 +2,4 @@
 .envrc
 */.envrc
 output/*
+__pycache__

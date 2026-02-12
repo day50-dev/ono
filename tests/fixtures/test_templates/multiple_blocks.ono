@@ -1,0 +1,7 @@
+# Multiple blocks test template
+# Block 1
+?ono get temp directory ?
+# Block 2
+?ono get current user ?
+# Block 3
+?ono get hostname ?

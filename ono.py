@@ -12,7 +12,7 @@ import logging
 
 @dataclass
 class ParsedItem:
-    type: str  # 'text' or 'ono'
+    type: str
     content: str
     parsed: Optional[List['ParsedItem']] = None
 
@@ -22,7 +22,6 @@ class OnoParser:
         self.end_tag = '?>'
     
     def parse(self, text: str) -> List[ParsedItem]:
-        """Parse text and return list of ParsedItem objects."""
         result = []
         current_index = 0
         
@@ -30,7 +29,6 @@ class OnoParser:
             start_index = text.find(self.start_tag, current_index)
             
             if start_index == -1:
-                # No more ono tags, add remaining text
                 if current_index < len(text):
                     result.append(ParsedItem(
                         type='text',
@@ -38,25 +36,21 @@ class OnoParser:
                     ))
                 break
             
-            # Add text before the tag
             if start_index > current_index:
                 result.append(ParsedItem(
                     type='text',
                     content=text[current_index:start_index]
                 ))
             
-            # Find the matching closing tag with proper nesting
             end_index, content = self._find_matching_closing_tag(text, start_index)
             
             if end_index == -1:
-                # Malformed - no matching closing tag
                 result.append(ParsedItem(
                     type='text',
                     content=text[start_index:]
                 ))
                 break
             
-            # Parse the content inside the tags recursively
             inner_content = content.strip()
             parsed_inner = self.parse(inner_content)
             
@@ -71,7 +65,6 @@ class OnoParser:
         return result
     
     def _find_matching_closing_tag(self, text: str, start_index: int) -> Tuple[int, str]:
-        """Find the matching closing tag, handling nested tags properly."""
         depth = 0
         current_index = start_index
         
@@ -80,29 +73,23 @@ class OnoParser:
             next_end = text.find(self.end_tag, current_index)
             
             if next_end == -1:
-                # No closing tag found
                 return -1, ''
             
             if next_start != -1 and next_start < next_end:
-                # Found another opening tag before the next closing tag
                 depth += 1
                 current_index = next_start + len(self.start_tag)
             else:
-                # Found a closing tag
                 if depth == 0:
-                    # This is our matching closing tag
                     content_start = start_index + len(self.start_tag)
                     content = text[content_start:next_end]
                     return next_end, content
                 else:
-                    # This closing tag belongs to a nested opening tag
                     depth -= 1
                     current_index = next_end + len(self.end_tag)
         
         return -1, ''
     
     def extract_ono_blocks(self, parsed_content: List[ParsedItem]) -> List[str]:
-        """Extract all ono content blocks, including nested ones."""
         ono_blocks = []
         
         def extract_recursive(items: List[ParsedItem]):
@@ -116,7 +103,6 @@ class OnoParser:
         return ono_blocks
     
     def render(self, parsed_content: List[ParsedItem]) -> str:
-        """Render parsed content back to string."""
         result = []
         for item in parsed_content:
             if item.type == 'text':
@@ -129,29 +115,19 @@ app = typer.Typer()
 
 @app.command()
 def main(
-    context: Optional[str] = typer.Option(None, "--context", "-c", help="File that establishes context, similar to postman parameters"),
-    format: Optional[str] = typer.Option(None, "--format", "-f", help="Destination format, inferred from the type"),
+    context: Optional[str] = typer.Option(None, "--context", "-c", help="File that establishes context"),
+    format: Optional[str] = typer.Option(None, "--format", "-f", help="Destination format"),
     backend: Optional[str] = typer.Option(None, "--backend", "-b", help="Backend type"),
-    input: str = typer.Argument(..., help="Directory, file, or list from globs like *.py"),
-    output: Optional[str] = typer.Option(None, "--output", "-o", help="A place to put the output of the program"),
+    input: str = typer.Argument(..., help="Directory, file, or glob"),
+    output: Optional[str] = typer.Option(None, "--output", "-o", help="Output location"),
 ):
     parser = OnoParser()
-
-    parsed = parser.parse(test_text)
-    for i, item in enumerate(parsed):
-        print(f"{i}: {item.type} - '{item.content[:50]}{'...' if len(item.content) > 50 else ''}'")
-        if item.parsed:
-            for j, sub_item in enumerate(item.parsed):
-                print(f"  {j}: {sub_item.type} - '{sub_item.content}'")
-    
-    print("\nExtracted ono blocks:")
-    ono_blocks = parser.extract_ono_blocks(parsed)
-    for i, block in enumerate(ono_blocks):
-        print(f"Block {i + 1}: '{block}'")
-    
-    
-    complex_parsed = parser.parse(complex_text)
-    complex_blocks = parser.extract_ono_blocks(complex_parsed)
+    print(f"Input: {input}")
+    print(f"Format: {format}")
+    if context:
+        print(f"Context: {context}")
+    if output:
+        print(f"Output: {output}")
 
 if __name__ == "__main__":
     app()
