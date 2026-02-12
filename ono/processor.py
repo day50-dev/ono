@@ -1,8 +1,9 @@
 """Processor for Ono blocks."""
 
 import re
-from typing import Optional
+from typing import Optional, List
 from ono.llm import LLMClient
+from ono.parser import OnoParser, ParsedItem
 
 
 class Processor:
@@ -12,15 +13,33 @@ class Processor:
 
     def _strip_markdown(self, text: str) -> str:
         """Strip markdown code blocks from response."""
-        # Remove markdown code blocks
         text = re.sub(r'^```[a-z]*\n', '', text, flags=re.MULTILINE)
         text = re.sub(r'\n```$', '', text, flags=re.MULTILINE)
-        # Remove any remaining backticks
         text = text.strip('`')
         return text.strip()
 
-    def process(self, command: str, context=None, format_hint: str = None):
-        """Process a command through the LLM with prompt engineering."""
+    def _process_ono_blocks(self, text: str) -> str:
+        """Process all <?ono ... ?> blocks in text."""
+        parser = OnoParser()
+        parsed = parser.parse(text)
+        
+        def process_parsed(items: List[ParsedItem]) -> str:
+            result = []
+            for item in items:
+                if item.type == 'text':
+                    result.append(item.content)
+                elif item.type == 'ono':
+                    # Extract the command from <?ono ... ?>
+                    ono_cmd = item.content.strip()
+                    # Call the LLM directly to process this command
+                    processed = self._generate_code(ono_cmd)
+                    result.append(processed)
+            return ''.join(result)
+        
+        return process_parsed(parsed)
+
+    def _generate_code(self, command: str, format_hint: str = None) -> str:
+        """Generate code for a single command."""
         # Determine format-specific system prompt
         if format_hint == 'bash':
             system_prompt = (
@@ -59,3 +78,11 @@ class Processor:
         
         response = self.llm.generate(user_prompt, messages)
         return self._strip_markdown(response)
+
+    def process(self, command: str, context=None, format_hint: str = None):
+        """Process a command through the LLM with prompt engineering."""
+        # If this is a file with <?ono ?> blocks, process them
+        if '<?ono' in command:
+            return self._process_ono_blocks(command)
+        
+        return self._generate_code(command, format_hint)
