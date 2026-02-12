@@ -66,7 +66,7 @@ class OnoParser:
     
     def _find_matching_closing_tag(self, text: str, start_index: int) -> Tuple[int, str]:
         depth = 0
-        current_index = start_index
+        current_index = start_index + len(self.start_tag)
         
         while current_index < len(text):
             next_start = text.find(self.start_tag, current_index)

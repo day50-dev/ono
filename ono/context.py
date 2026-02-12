@@ -15,9 +15,7 @@ class ContextManager:
 
     def get_context(self, path: str) -> Context:
         ctx_path = self.base_dir / path
-        if ctx_path.exists():
-            ctx = Context()
-            return ctx
+        ctx_path.mkdir(parents=True, exist_ok=True)
         ctx = Context()
         return ctx
 
