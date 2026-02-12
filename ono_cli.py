@@ -13,6 +13,23 @@ import typer
 
 app = typer.Typer()
 
+def get_format_from_filename(filename: str) -> Optional[str]:
+    """Determine format from file extension."""
+    ext = os.path.splitext(filename)[1]
+    if ext == '.sh' or ext == '.bash':
+        return 'bash'
+    elif ext == '.py':
+        return 'python'
+    elif ext == '.json':
+        return 'json'
+    elif ext == '.yaml' or ext == '.yml':
+        return 'yaml'
+    elif ext == '.toml':
+        return 'toml'
+    elif ext == '.md':
+        return 'markdown'
+    return None
+
 def process_ono_file(input_path: str, format: Optional[str] = None, output_path: Optional[str] = None):
     """Process an Ono template file."""
     with open(input_path, 'r') as f:
@@ -28,9 +45,12 @@ def process_ono_file(input_path: str, format: Optional[str] = None, output_path:
         llm = LLMClient("http://10.0.0.221:11434/v1", "qwen3:1.7b")
         processor = Processor(llm)
         
+        # Determine format from filename or explicit option
+        format_hint = format or get_format_from_filename(input_path)
+        
         resolved_blocks = []
         for block in blocks:
-            resolved = processor.process(block)
+            resolved = processor.process(block, format_hint=format_hint)
             resolved_blocks.append(resolved)
         
         result = render_with_resolved(parsed, resolved_blocks)
