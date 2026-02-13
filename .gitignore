@@ -2,3 +2,5 @@
 .envrc
 */.envrc
 output/*
+__pycache__
+*egg-info
