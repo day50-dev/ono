@@ -1,0 +1,537 @@
+<h1>Ono Language Specification v0.1</h1>
+<h2>1. Introduction</h2>
+<p>Ono is a universal AI-powered templating language designed to embed intelligent content generation within any text-based file format. The language uses natural language requests to generate contextually appropriate content while maintaining syntactic validity in the host language.</p>
+<h2>2. Design Principles</h2>
+<ol>
+<li><strong>Universal Compatibility</strong>: Ono blocks can be embedded in any text format</li>
+<li><strong>Syntactic Preservation</strong>: Host files remain syntactically valid during editing</li>
+<li><strong>Contextual Intelligence</strong>: AI understands both the request and surrounding context</li>
+<li><strong>Minimal Syntax</strong>: Simple, readable syntax with flexible delimiters</li>
+<li><strong>Reproducible Builds</strong>: Complete metadata tracking for debugging and reproduction</li>
+</ol>
+<h2>3. Basic Syntax</h2>
+<h3>3.1 Ono Blocks</h3>
+<p>An Ono block consists of:</p>
+<ul>
+<li>Optional opening delimiter</li>
+<li>The keyword <code>?ono</code></li>
+<li>Natural language content</li>
+<li>Closing delimiter matching the opening delimiter + <code>?</code></li>
+</ul>
+<p><strong>Basic Pattern:</strong></p>
+<pre><code>[delimiter]?ono &lt;content&gt; ?[delimiter]
+</code></pre>
+<h3>3.2 Default Delimiters</h3>
+<p>The following delimiters are automatically recognized:</p>
+<table>
+<thead>
+<tr>
+<th>Opening</th>
+<th>Closing</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;</code></td>
+<td><code>?&quot;</code></td>
+<td><code>&quot;?ono get temp directory ?&quot;</code></td>
+</tr>
+<tr>
+<td><code>'</code></td>
+<td><code>?'</code></td>
+<td><code>'?ono get username ?'</code></td>
+</tr>
+<tr>
+<td><code>{</code></td>
+<td><code>?}</code></td>
+<td><code>{?ono get api key ?}</code></td>
+</tr>
+<tr>
+<td><code>[</code></td>
+<td><code>?]</code></td>
+<td><code>[?ono get project name ?]</code></td>
+</tr>
+<tr>
+<td><code>&lt;</code></td>
+<td><code>?&gt;</code></td>
+<td><code>&lt;?ono get database host ?&gt;</code></td>
+</tr>
+<tr>
+<td>(none)</td>
+<td><code>?</code></td>
+<td><code>?ono get current time ?</code></td>
+</tr>
+</tbody>
+</table>
+<h3>3.3 Examples</h3>
+<pre><code class="language-python"># Python example
+database_url = &quot;?ono get database connection string ?&quot;
+port = &quot;?ono get default database port for postgresql ?&quot;
+</code></pre>
+<pre><code class="language-bash"># Bash example
+temp_dir=&quot;?ono get users temp directory ?&quot;
+current_user=?ono get current username ?
+</code></pre>
+<pre><code class="language-json">{
+  &quot;host&quot;: &quot;?ono get database host from environment ?&quot;,
+  &quot;timeout&quot;: &quot;?ono calculate appropriate timeout for this service ?&quot;
+}
+</code></pre>
+<h2>4. Variable Substitution</h2>
+<h3>4.1 Substitution Syntax</h3>
+<p>Ono supports intelligent variable substitution within ono blocks using universal syntax that translates to target language conventions:</p>
+<p><strong>Variable Access:</strong></p>
+<pre><code>$variable_name
+</code></pre>
+<p><strong>Function Calls:</strong></p>
+<pre><code>$function_name($arg1, $arg2)
+</code></pre>
+<p><strong>Expression Evaluation:</strong></p>
+<pre><code>$(expression)
+</code></pre>
+<h3>4.2 Substitution Examples</h3>
+<p><strong>Universal Template:</strong></p>
+<pre><code class="language-bash">result=&quot;?ono process data from $input_file using $processor_func($config_param) with timeout $(base_timeout + 10) ?&quot;
+</code></pre>
+<p><strong>Bash Output:</strong></p>
+<pre><code class="language-bash">result=$(process_data &quot;$input_file&quot; &quot;$(processor_func &quot;$config_param&quot;)&quot; &quot;$((base_timeout + 10))&quot;)
+</code></pre>
+<p><strong>Python Output:</strong></p>
+<pre><code class="language-python">result = process_data(input_file, processor_func(config_param), base_timeout + 10)
+</code></pre>
+<p><strong>JavaScript Output:</strong></p>
+<pre><code class="language-javascript">result = processData(inputFile, processorFunc(configParam), baseTimeout + 10);
+</code></pre>
+<h3>4.3 Parsing Rules</h3>
+<p>The substitution parser uses a stack-based approach:</p>
+<ul>
+<li><code>$identifier</code> → Variable substitution</li>
+<li><code>$identifier(</code> → Function call (parser pushes stack for arguments)</li>
+<li><code>$(</code> → Expression stanza (parser pushes stack for expression evaluation)</li>
+<li><code>)</code> → Pop parser stack</li>
+</ul>
+<p><strong>Complex Example:</strong></p>
+<pre><code>&quot;?ono create backup using $backup_tool($source_dir, $dest_calc($base_path, $project_name), $(retention_days * 24)) ?&quot;
+</code></pre>
+<p>Parsed as:</p>
+<ul>
+<li><code>$backup_tool</code> → function call with three arguments:
+<ul>
+<li><code>$source_dir</code> → variable</li>
+<li><code>$dest_calc($base_path, $project_name)</code> → nested function call</li>
+<li><code>$(retention_days * 24)</code> → expression evaluation</li>
+</ul>
+</li>
+</ul>
+<h3>4.1 Block-Level Configuration</h3>
+<p>Configuration parameters can be included within Ono blocks using key=value syntax:</p>
+<pre><code>&quot;?ono 
+model=claude-3-5-sonnet
+temperature=0.2
+@context=preserve_previous
+
+get database configuration for production environment
+?&quot;
+</code></pre>
+<h2>5. Configuration Syntax</h2>
+<p><strong>Pass-through Parameters</strong> (sent directly to LLM):</p>
+<ul>
+<li><code>model=&lt;string&gt;</code> - LLM model to use</li>
+<li><code>temperature=&lt;float&gt;</code> - Response randomness (0.0-2.0)</li>
+<li><code>max_tokens=&lt;integer&gt;</code> - Maximum response length</li>
+<li>Any other parameter supported by the LLM API</li>
+</ul>
+<p><strong>Ono-Specific Parameters</strong> (prefixed with <code>@</code>):</p>
+<ul>
+<li><code>@context=&lt;string&gt;</code> - Context management directive</li>
+<li><code>@execution=&lt;string&gt;</code> - Execution control directive</li>
+<li><code>@meta=&lt;string&gt;</code> - Metadata handling directive</li>
+<li><code>@type=&lt;string&gt;</code> - Block type (model, agent, meta, source)</li>
+</ul>
+<h3>5.3 File-Level Configuration</h3>
+<p>Global settings for a file can be specified in comments at the top:</p>
+<pre><code class="language-python">#!/usr/bin/env python
+# ?ono
+# type=config
+# delimiters=🐊, 🦋
+# model=gpt-4
+# context=deployment
+# execution=once
+# ?
+
+database_url = 🐊?ono get database connection string 🦋
+</code></pre>
+<p><strong>Supported File-Level Directives:</strong></p>
+<ul>
+<li><code>delimiters=&lt;open&gt;, &lt;close&gt;</code> - Custom delimiter pair</li>
+<li><code>model=&lt;string&gt;</code> - Default model for all blocks</li>
+<li><code>context=&lt;string&gt;</code> - Default context path</li>
+<li><code>execution=&lt;string&gt;</code> - Default execution mode</li>
+<li><code>temperature=&lt;float&gt;</code> - Default temperature</li>
+<li><code>meta=&lt;string&gt;</code> - Default metadata style</li>
+</ul>
+<h2>6. Context Management</h2>
+<h3>6.1 Context Directives</h3>
+<table>
+<thead>
+<tr>
+<th>Directive</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(no context specified)</td>
+<td>Create fresh context for each block</td>
+</tr>
+<tr>
+<td><code>context=&lt;name&gt;</code></td>
+<td>Create or use named context</td>
+</tr>
+<tr>
+<td><code>context=&lt;name&gt;/&lt;path&gt;</code></td>
+<td>Create context branch (fork from parent)</td>
+</tr>
+</tbody>
+</table>
+<h3>6.2 Context Examples</h3>
+<pre><code class="language-bash"># Creates new context (default - no context specified)
+system_info=&quot;?ono analyze this server environment ?&quot;
+
+# Creates &quot;system&quot; context, inherits from previous if available
+services=&quot;?ono context=system identify running services on this system ?&quot;
+
+# Forks &quot;system&quot; context to create &quot;system/monitoring&quot; 
+monitoring=&quot;?ono context=system/monitoring setup monitoring for the identified services ?&quot;
+
+# Another fork: &quot;system/backup&quot;
+backup=&quot;?ono context=system/backup design backup strategy for critical services ?&quot;
+</code></pre>
+<h2>7. Execution Control</h2>
+<h3>6.1 Execution Directives</h3>
+<table>
+<thead>
+<tr>
+<th>Directive</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@execution=always</code></td>
+<td>Execute every time (default)</td>
+</tr>
+<tr>
+<td><code>@execution=once</code></td>
+<td>Execute once, cache result</td>
+</tr>
+<tr>
+<td><code>@execution=compile</code></td>
+<td>Execute during preprocessing</td>
+</tr>
+<tr>
+<td><code>@execution=runtime</code></td>
+<td>Execute when target code runs</td>
+</tr>
+</tbody>
+</table>
+<h3>6.2 Scope Directives</h3>
+<table>
+<thead>
+<tr>
+<th>Directive</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@scope=local</code></td>
+<td>Scoped to current file (default)</td>
+</tr>
+<tr>
+<td><code>@scope=global</code></td>
+<td>Shared across all files in project</td>
+</tr>
+<tr>
+<td><code>@scope=instance</code></td>
+<td>Separate execution per instance</td>
+</tr>
+</tbody>
+</table>
+<h2>8. File Naming Convention</h2>
+<p>Ono template files use the <code>.ono.&lt;extension&gt;</code> naming pattern:</p>
+<pre><code>deploy.ono.sh       # Bash script template
+config.ono.json     # JSON configuration template  
+app.ono.py          # Python application template
+Dockerfile.ono      # Dockerfile template
+</code></pre>
+<p><strong>Benefits:</strong></p>
+<ul>
+<li>Syntax highlighting for base language</li>
+<li>Clear identification of template files</li>
+<li>Tool integration (build systems, IDEs)</li>
+</ul>
+<h2>9. Processing Model</h2>
+<h3>8.1 Two-Pass Processing</h3>
+<p>Ono uses a two-pass processing model:</p>
+<p><strong>Pass 1: Concept Pass</strong></p>
+<ul>
+<li>Analyzes full file context</li>
+<li>Sends natural language request to LLM</li>
+<li>Generates semantically appropriate response</li>
+<li>Determines complexity level and extraction needs</li>
+</ul>
+<p><strong>Pass 2: Syntax Pass</strong></p>
+<ul>
+<li>Applies target format requirements</li>
+<li>Handles escaping and quoting</li>
+<li>Extracts complex logic using function lifting</li>
+<li>Validates syntax when possible</li>
+<li>Ensures output compatibility</li>
+</ul>
+<h3>8.2 Function Lifting</h3>
+<p>When ono blocks require complex logic (loops, assignments, side effects), the solution is automatically extracted into helper functions using a preference hierarchy:</p>
+<p><strong>Preference Hierarchy:</strong></p>
+<ol>
+<li><strong>Simple substitution</strong> - Direct string/value replacement</li>
+<li><strong>Inline expression</strong> - Single expression that fits naturally</li>
+<li><strong>Nested function</strong> - Extract complexity, keep local scope</li>
+<li><strong>Adjacent function</strong> - Same file, broader scope</li>
+<li><strong>External library</strong> - Separate file for reusability</li>
+<li><strong>Global function</strong> - Last resort</li>
+</ol>
+<p><strong>Naming Convention:</strong>
+Generated functions and variables use preprocessor-style naming:</p>
+<ul>
+<li><code>_ono_fn_*</code> - Functions (e.g., <code>_ono_fn_get_backup_dir</code>)</li>
+<li><code>_ono_var_*</code> - Variables (e.g., <code>_ono_var_platform_type</code>)</li>
+<li><code>_ono_cls_*</code> - Classes (e.g., <code>_ono_cls_config_manager</code>)</li>
+<li><code>_ono_const_*</code> - Constants (e.g., <code>_ono_const_timeout</code>)</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre><code class="language-python"># Original ono block
+backup_strategy = &quot;?ono determine backup strategy based on platform with error handling ?&quot;
+
+# Generated output with function lifting
+def _ono_fn_determine_backup_strategy():
+    import platform
+    import os
+    
+    system = platform.system().lower()
+    if system == &quot;windows&quot;:
+        # Complex Windows backup logic
+        drives = [d for d in &quot;ABCDEFGHIJKLMNOPQRSTUVWXYZ&quot; if os.path.exists(d + &quot;:&quot;)]
+        return f&quot;robocopy /MIR source {drives[0]}:/backup&quot;
+    elif system == &quot;darwin&quot;:
+        return &quot;rsync -av --delete source/ ~/backup/&quot;
+    else:
+        return &quot;tar -czf /tmp/backup.tar.gz source/&quot;
+
+backup_strategy = _ono_fn_determine_backup_strategy()
+</code></pre>
+<h3>8.3 Processing Flow</h3>
+<pre><code>Source File (.ono.ext) → Parser → Concept Pass → Complexity Analysis → Syntax Pass → Output File (.ext)
+                             ↓           ↓              ↓              ↓
+                        Context Mgr → LLM API → Function Lifting → Validator
+</code></pre>
+<h2>10. Build Metadata</h2>
+<h3>9.1 Metadata Formats</h3>
+<p><strong>Inline Comments</strong> (default for comment-supporting languages):</p>
+<pre><code class="language-bash">#!/bin/bash
+# ?ono
+# type=meta
+# build_id=20250530-143022-abc123
+# timestamp=2025-05-30T14:30:22Z
+# ono_version=0.1.0
+# source=deploy.ono.sh
+# blocks=[{id: 1, resolved: &quot;/tmp&quot;, model: &quot;claude-3-5-sonnet&quot;}]
+# ?
+
+temp_dir=&quot;/tmp&quot;
+</code></pre>
+<p><strong>Structured Field</strong> (for JSON/YAML/TOML):</p>
+<pre><code class="language-json">{
+  &quot;@ono&quot;: {
+    &quot;build_id&quot;: &quot;abc123&quot;,
+    &quot;timestamp&quot;: &quot;2025-01-29T14:30:22Z&quot;,
+    &quot;source&quot;: &quot;config.ono.json&quot;,
+    &quot;ono_version&quot;: &quot;0.1.0&quot;
+  },
+  &quot;database&quot;: {
+    &quot;host&quot;: &quot;localhost&quot;
+  }
+}
+</code></pre>
+<p><strong>Separate File</strong> (when inline not possible):</p>
+<pre><code>config.json      # Generated output
+config.json.ono-meta  # Metadata file
+</code></pre>
+<h3>9.2 Metadata Control</h3>
+<p>Metadata generation can be controlled via CLI flags:</p>
+<pre><code class="language-bash">ono --meta inline source.ono.py    # Inline comments (default)
+ono --meta file source.ono.json    # Separate .ono-meta file
+ono --meta none source.ono.sh      # No metadata
+</code></pre>
+<h2>11. Command Line Interface</h2>
+<h3>10.1 Basic Processing</h3>
+<pre><code class="language-bash"># Process single file
+ono source.ono.py &gt; output.py
+ono --format python source.ono.py &gt; output.py
+
+# Process with options
+ono --meta file --context new source.ono.json &gt; output.json
+
+# Include source debugging information
+ono -g source.ono.py &gt; output.py
+</code></pre>
+<h3>10.2 Context Management</h3>
+<pre><code class="language-bash"># List contexts
+ono contexts list
+
+# Clean old contexts  
+ono contexts clean
+
+# Show context details
+ono contexts show preserve_previous/analysis
+</code></pre>
+<h3>10.3 Information Commands</h3>
+<pre><code class="language-bash"># Show build metadata
+ono info output.py
+
+# Validate without processing
+ono validate source.ono.py
+
+# Show version
+ono --version
+</code></pre>
+<h2>12. Configuration</h2>
+<h3>11.1 Global Configuration</h3>
+<p>File: <code>~/.ono/config.yaml</code></p>
+<pre><code class="language-yaml">llm:
+  api_url: &quot;http://localhost:8000/v1&quot;
+  api_key: &quot;${ONO_API_KEY}&quot;
+  default_model: &quot;claude-3-5-sonnet&quot;
+  timeout: 30
+
+defaults:
+  meta_style: &quot;inline&quot;
+  context_storage: &quot;~/.ono/contexts&quot;
+  execution: &quot;always&quot;
+
+formats:
+  bash:
+    validator: &quot;shellcheck&quot;
+  python: 
+    validator: &quot;python -m py_compile&quot;
+  json:
+    validator: &quot;jq .&quot;
+</code></pre>
+<h3>11.2 Project Configuration</h3>
+<p>File: <code>.ono/config.yaml</code></p>
+<pre><code class="language-yaml"># Project-specific overrides
+llm:
+  default_model: &quot;gpt-4&quot;
+  
+context:
+  default_path: &quot;main&quot;
+  auto_cleanup: false
+
+formats:
+  dockerfile:
+    validator: &quot;hadolint&quot;
+</code></pre>
+<h2>13. Error Handling</h2>
+<h3>12.1 Parse Errors</h3>
+<ul>
+<li><strong>Unmatched delimiters</strong>: Clear error with line number and suggestion</li>
+<li><strong>Invalid configuration</strong>: Show valid parameter options</li>
+<li><strong>Malformed blocks</strong>: Highlight problematic syntax</li>
+</ul>
+<h3>12.2 Processing Errors</h3>
+<ul>
+<li><strong>LLM API failures</strong>: Retry with exponential backoff</li>
+<li><strong>Context errors</strong>: Auto-create missing contexts with warnings</li>
+<li><strong>Validation failures</strong>: Show validator output with suggestions</li>
+</ul>
+<h3>12.3 Error Examples</h3>
+<pre><code>Error: Unmatched delimiter on line 15
+  Found: &quot;ono get temp dir ?'
+  Expected: &quot;ono get temp dir ?&quot;
+
+Error: Invalid context path 'invalid/path'
+  Valid formats:
+    - new
+    - preserve_previous  
+    - preserve_previous/branch_name
+
+Warning: Context 'preserve_previous/analysis' not found
+  Created new context branch
+</code></pre>
+<h2>14. Language Integration</h2>
+<h3>13.1 Supported Output Formats</h3>
+<ul>
+<li><strong>Shell scripts</strong>: bash, zsh, fish</li>
+<li><strong>Programming languages</strong>: Python, JavaScript, Go, Rust, Java</li>
+<li><strong>Configuration</strong>: JSON, YAML, TOML, INI</li>
+<li><strong>Infrastructure</strong>: Dockerfile, Terraform, Kubernetes YAML</li>
+<li><strong>Documentation</strong>: Markdown, RST, plain text</li>
+</ul>
+<h3>13.2 Format-Specific Features</h3>
+<p><strong>Shell Scripts:</strong></p>
+<ul>
+<li>Automatic quoting and escaping</li>
+<li>Environment variable handling</li>
+<li>Cross-platform path resolution</li>
+</ul>
+<p><strong>Python:</strong></p>
+<ul>
+<li>String literal generation</li>
+<li>Import statement optimization</li>
+<li>Type hint preservation</li>
+</ul>
+<p><strong>JSON/YAML:</strong></p>
+<ul>
+<li>Schema validation when available</li>
+<li>Proper data type conversion</li>
+<li>Comment preservation (where supported)</li>
+</ul>
+<h2>15. Security Considerations</h2>
+<h3>14.1 Input Validation</h3>
+<ul>
+<li>Sanitize Ono block content</li>
+<li>Validate configuration parameters</li>
+<li>Prevent injection attacks in generated code</li>
+</ul>
+<h3>14.2 Output Safety</h3>
+<ul>
+<li>Format-specific escaping</li>
+<li>Validation with external tools</li>
+<li>Warning for potentially unsafe operations</li>
+</ul>
+<h3>14.3 API Security</h3>
+<ul>
+<li>Secure API key storage</li>
+<li>Request rate limiting</li>
+<li>Connection encryption</li>
+</ul>
+<h2>16. Future Extensions</h2>
+<h3>15.1 Planned Features</h3>
+<ul>
+<li>Plugin system for custom validators</li>
+<li>Template marketplace integration</li>
+<li>IDE/editor extensions</li>
+<li>CI/CD pipeline integration</li>
+</ul>
+<h3>15.2 Compatibility</h3>
+<p>This specification defines Ono Language v0.1. Future versions will maintain backward compatibility for:</p>
+<ul>
+<li>Basic syntax and delimiters</li>
+<li>Core configuration parameters</li>
+<li>File naming conventions</li>
+<li>Metadata formats</li>
+</ul>
+<hr />
+<p><strong>Specification Version</strong>: 0.1<br />
+<strong>Date</strong>: May 30, 2025<br />
+<strong>Status</strong>: Draft</p>

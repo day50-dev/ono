@@ -1,0 +1,163 @@
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ONO - Universal AI-Powered Preprocessor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism-okaidia.css">
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-bash.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-json.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-js.min.js"></script>
+    <link rel="stylesheet" href="style.css?f">
+  </head>
+  <body>
+    <header class="stark-header">
+      <div class="logo">ONO</div>
+      <nav>
+        <ul>
+          <li><a href="specs/">Docs</a></li>
+          <li><a href="#">Community</a></li>
+          <li><a href="https://github.com/day50-dev/ono">GitHub</a></li>
+        </ul>
+      </nav>
+    </header>
+    <main>
+      <section class="hero">
+        <div class="hero-content">
+          <h1><span class="highlight">ONO</span> PREPROCESSOR</h1>
+          <p class="subtitle">Universal AI-powered templating for cross-platform scripting</p>
+          <pre><code class="language-js">echo '[?ono find and safely terminate process on port 8080?]' | nc demo.onolang.com 8080</code></pre>
+          <div class="cta-buttons">
+            <button class="cta primary">Get Started</button>
+            <button class="cta secondary">View Examples</button>
+          </div>
+        </div>
+        <div class="hero-visual">
+              <pre><code class="language-js">// Universal path handling
+const configPath = "?ono generate cross-platform 
+  config file path for app named 'myapp'?"
+
+// Smart defaults that don't need system access
+const dbConfig = "?ono create production database 
+  configuration with security best practices?"
+
+// Language-aware code generation
+const apiClient = "?ono generate HTTP client class 
+  with retry logic and proper error handling?"
+
+// Universal regex patterns
+const emailValidator = "?ono create robust email 
+  validation regex with international domain support?"
+            </code></pre>
+          </div>
+      </section>
+
+      <section class="overview">
+        <div class="overview-content">
+          <h2>How Ono Works</h2>
+          
+          <div class="workflow">
+            <div class="workflow-step">
+              <div class="step-number">1</div>
+              <h3>Include ONOs in your code</h3>
+              <p>They remain syntactically valid and won't break your build or IDE.</p>
+            <pre><code class="language-bash">... existing code ...
+userdir="?ono get users home directory ?";
+... more existing code ...
+</code></pre>
+
+          </div>
+          
+          <div class="workflow-step">
+            <div class="step-number">2</div>
+            <h3>Process with ONO</h3>
+            <p>Run the preprocessor to resolve directives for your target context</p>
+            <pre><code class="language-bash">$ ono --context prod.yaml \
+      script.ono.sh > script.sh</code></pre>
+          </div>
+          
+          <div class="workflow-step">
+            <div class="step-number">3</div>
+            <h3>Execute Anywhere</h3>
+            <p>Run the generated script on any supported platform</p>
+            <pre><code class="language-bash">$ ./script.sh</code></pre>
+          </div>
+        </div>
+        
+        <!--
+        <div class="overview-section">
+          <h3>Real-World Example</h3>
+          <div class="code-example">
+            <div class="example-header">Template (deploy.ono)</div>
+            <pre><code># Create backup in user's home directory
+BACKUP_DIR="?ono get users home directory ?&gt;/backups
+TIMESTAMP="?ono get current timestamp format="YYYYMMDD_HHmmss" ?";
+tar -czf $BACKUP_DIR/app_$TIMESTAMP.tar.gz ./app
+
+# Notify user based on OS
+&lt;?ono if platform is "windows" ?&gt;
+  msg * "Backup created at $BACKUP_DIR"
+&lt;?ono else ?&gt;
+  notify-send "Backup Complete" "Saved to $BACKUP_DIR"
+&lt;?ono endif ?&gt;</code></pre>
+          </div>
+        </div>
+        -->
+      </div>
+    </section>
+
+    <section class="performance">
+      <h2>Why Developers Love Ono</h2>
+      <div class="benefits">
+        <div class="benefit">
+          <h3>Eliminate Platform-Specific Code</h3>
+          <p>Write scripts once, run anywhere without conditional logic</p>
+        </div>
+        <div class="benefit">
+          <h3>Reduce Boilerplate</h3>
+          <p>Automate repetitive configuration tasks</p>
+        </div>
+        <div class="benefit">
+          <h3>Future-Proof Scripts</h3>
+          <p>AI updates output as platforms evolve</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="stark-footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>ONO PREPROCESSOR</h4>
+        <p>Universal scripting simplified</p>
+      </div>
+      <div class="footer-section">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="#">Documentation</a></li>
+          <li><a href="#">Directive Reference</a></li>
+          <li><a href="#">API Guide</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Community</h4>
+        <ul>
+          <li><a href="#">Examples Gallery</a></li>
+          <li><a href="https://github.com/day50-dev/ono">GitHub</a></li>
+          <li><a href="#">Discord</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="copyright">
+      © 2025 <a href="https://day50.dev" class="day50-link">DA`/50</a>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>
