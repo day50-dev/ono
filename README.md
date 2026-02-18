@@ -148,6 +148,41 @@ ono migration.ono.sql > migration.sql
 echo 'cleanup="?ono safely kill process on port $target_port ?"' | nc demo.onolang.com 8080
 ```
 
+## Getting Started Examples
+
+For a hands-on introduction, check out the **examples/getting_started/** directory. This directory contains:
+
+1. **Ono templates** (`.ono.sh` files) - Source templates with `?ono` blocks
+2. **Generated scripts** (`.sh` files) - Working bash scripts created by Ono
+3. **Setup scripts** - Easy way to get a working environment
+
+### Run the Examples
+
+```bash
+cd examples/getting_started
+
+# Detect available LLM backends
+bash model_detect.sh
+
+# Start the Ono TCP server
+bash start_ono.sh
+
+# Or run the full setup
+bash setup_ono.sh
+```
+
+### Process Your Own Templates
+
+```bash
+# Process a single template
+python3 ono.py template.ono.sh -o output.sh
+
+# Process all templates in a directory
+python3 ono.py ./templates/ -o ./output/
+```
+
+See [examples/getting_started/README.md](examples/getting_started/README.md) for detailed instructions.
+
 ## Context Intelligence
 
 Build sophisticated workflows with automatic context management:

@@ -42,7 +42,7 @@ def process_ono_file(input_path: str, format: Optional[str] = None, output_path:
     if not blocks:
         result = content
     else:
-        llm = LLMClient("http://10.0.0.221:11434/v1", "qwen3:1.7b")
+        llm = LLMClient("http://localhost:11434/v1", "Qwen3-Coder-Next-Q4_K_M.gguf")
         processor = Processor(llm)
         
         # Determine format from filename or explicit option
@@ -50,7 +50,7 @@ def process_ono_file(input_path: str, format: Optional[str] = None, output_path:
         
         resolved_blocks = []
         for block in blocks:
-            resolved = processor.process(block, format_hint=format_hint)
+            resolved = processor.process(block, format_hint=format_hint or 'bash')
             resolved_blocks.append(resolved)
         
         result = render_with_resolved(parsed, resolved_blocks)
