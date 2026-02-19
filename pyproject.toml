@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "onorous"
+version = "0.1.0"
+description = "Ono - Universal AI-Powered Preprocessor"
+readme = "README.md"
+authors = [
+    {name = "Ono Team", email = "team@onolang.com"}
+]
+maintainers = [
+    {name = "Ono Team", email = "team@onolang.com"}
+]
+license = {text = "MIT"}
+keywords = ["ono", "preprocessor", "ai", "llm", "templating", "automation"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "typer",
+    "pyyaml",
+    "requests",
+    "httpx",
+]
+
+[project.urls]
+Homepage = "https://onolang.com"
+Documentation = "https://onolang.com/docs"
+Repository = "https://github.com/onolang/onorous"
+Issues = "https://github.com/onolang/onorous/issues"
+
+[project.scripts]
+onorous = "ono.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ono*", "ono_cli.py"]
+
+[tool.setuptools.package-data]
+ono = ["py.typed"]

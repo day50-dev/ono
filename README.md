@@ -1,5 +1,7 @@
 # Ono - Universal AI-Powered Preprocessor
 
+<a href=https://pypi.org/project/onorous><img src=https://badge.fury.io/py/onorous.svg/></a>
+
 *"Oh no, this is complicated... let AI figure it out."*
 
 Ono is a universal templating preprocessor that uses AI to solve those annoying cross-platform, language-specific problems you don't want to think about. Write once, deploy anywhere, in any language.
@@ -134,15 +136,15 @@ db_connection=$(establish_db_connection "$db_host" $((load_factor + 30)))
 
 ```bash
 # Install
-pip install ono-preprocessor
+pip install onorous
 
 # Set your LLM endpoint  
 export ONO_API_URL="http://localhost:8000/v1"
 
 # Process templates
-ono deploy.ono.sh > deploy.sh
-ono docker-compose.ono.yml > docker-compose.yml
-ono migration.ono.sql > migration.sql
+onorous process deploy.ono.sh -o deploy.sh
+onorous process docker-compose.ono.yml -o docker-compose.yml
+onorous process migration.ono.sql -o migration.sql
 
 # Try it instantly (no install)
 echo 'cleanup="?ono safely kill process on port $target_port ?"' | nc demo.onolang.com 8080
@@ -174,11 +176,14 @@ bash setup_ono.sh
 ### Process Your Own Templates
 
 ```bash
+# Install onorous
+pip install onorous
+
 # Process a single template
-python3 ono.py template.ono.sh -o output.sh
+onorous process template.ono.sh -o output.sh
 
 # Process all templates in a directory
-python3 ono.py ./templates/ -o ./output/
+onorous process ./ -o output/
 ```
 
 See [examples/getting_started/README.md](examples/getting_started/README.md) for detailed instructions.

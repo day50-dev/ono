@@ -1,6 +1,7 @@
 """Command-line interface for Ono."""
 
 import typer
+from typing import Optional
 from .processor import Processor
 from .llm import LLMClient
 import sys
@@ -8,21 +9,21 @@ import os
 
 app = typer.Typer()
 
-def process_file(input_path: str, output_path: str = None):
+def process_file(input_path: str, output_path: Optional[str] = None):
     """Process an Ono template file."""
     try:
         with open(input_path, 'r') as f:
             content = f.read()
         
         api_url = os.environ.get('ONO_API_URL', 'http://localhost:11434/v1')
-        model = os.environ.get('ONO_MODEL', 'qwen3-vl:2b')
+        model = os.environ.get('ONO_MODEL', 'Qwen3-Coder-Next-Q4_K_M.gguf')
         
         llm = LLMClient(api_url=api_url, model=model)
         processor = Processor(llm)
         
         result = processor.process(content)
         
-        if output_path:
+        if output_path is not None:
             with open(output_path, 'w') as f:
                 f.write(result)
             print(f"Output written to {output_path}", file=sys.stderr)
